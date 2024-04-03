@@ -6,5 +6,6 @@ public static class SceneList
 {
     public static string BoostrepScene = "Boostrep";
     public static string IntroScene = "Intro";
+    public static string roomScene = "Room";
     public static string GameScene = "Game";
 }

@@ -7,6 +7,7 @@ public class HostSingle : MonoBehaviour
     private static HostSingle instance;
 
     public HostGameManager GameManager { get; private set; }
+    public NetworkServer NetworkServer => GameManager.NetworkServer;
 
     public static HostSingle Instance
     {
@@ -31,5 +32,10 @@ public class HostSingle : MonoBehaviour
     public void CreateHost()
     {
         GameManager = new HostGameManager();
+    }
+
+    private void OnDestroy()
+    {
+        GameManager?.Dispose();
     }
 }
