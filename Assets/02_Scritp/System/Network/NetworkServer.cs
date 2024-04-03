@@ -9,8 +9,11 @@ public class NetworkServer : IDisposable
 {
     private NetworkManager networkManager;
 
-    private Dictionary<ulong, string> _clientIdToAuthDictionary = new Dictionary<ulong, string>();
-    private Dictionary<string, UserData> _authIdToUserDataDictionary = new Dictionary<string, UserData>();
+    private Dictionary<ulong, string> clientIdToAuthDictionary = new Dictionary<ulong, string>();
+    private Dictionary<string, UserData> authIdToUserDataDictionary = new Dictionary<string, UserData>();
+
+    public event Action OnClientJoinEvt;
+    public event Action OnClientLeftEvt;
 
     public NetworkServer(NetworkManager networkManager)
     {
@@ -25,12 +28,14 @@ public class NetworkServer : IDisposable
     {
         string json = Encoding.UTF8.GetString(req.Payload);
         UserData data = JsonUtility.FromJson<UserData>(json);
+        
+        clientIdToAuthDictionary[req.ClientNetworkId] = data.authId;
+        authIdToUserDataDictionary[data.authId] = data;
 
-        _clientIdToAuthDictionary[req.ClientNetworkId] = data.authId;
-        _authIdToUserDataDictionary[data.authId] = data;
-
-        res.CreatePlayerObject = true; //자동생성 안씀
+        res.CreatePlayerObject = false; //자동생성 안씀
         res.Approved = true; //응답완료
+
+        OnClientJoinEvt?.Invoke();
     }
 
     private void ServerStarted()
@@ -38,18 +43,56 @@ public class NetworkServer : IDisposable
         networkManager.OnClientDisconnectCallback += ClientDisconnect;
     }
 
+    public UserData? GetUserDataByClientID(ulong clientId)
+    {
+        if (clientIdToAuthDictionary.TryGetValue(clientId, out string authId))
+        {
+            if (authIdToUserDataDictionary.TryGetValue(authId, out UserData data))
+            {
+                return data;
+            }
+        }
+
+        return null;
+    }
+
+    public UserData? GetUserDataByAuthID(string authId)
+    {
+        if (authIdToUserDataDictionary.TryGetValue(authId, out UserData data))
+        {
+            return data;
+        }
+
+        return null;
+    }
+
+    public void SetUserDataByClientId(ulong clientId, UserData newUserData)
+    {
+        if (clientIdToAuthDictionary.TryGetValue(clientId, out string authId))
+        {
+            if (authIdToUserDataDictionary.TryGetValue(authId, out UserData data))
+            {
+                authIdToUserDataDictionary[authId] = newUserData;
+            }
+        }
+    }
+
     private void ClientDisconnect(ulong clientId)
     {
-        if (_clientIdToAuthDictionary.TryGetValue(clientId, out string authId))
+        if (clientIdToAuthDictionary.TryGetValue(clientId, out string authId))
         {
-            _clientIdToAuthDictionary.Remove(clientId);
-            _authIdToUserDataDictionary.Remove(authId);
+            clientIdToAuthDictionary.Remove(clientId);
+            authIdToUserDataDictionary.Remove(authId);
+            OnClientLeftEvt?.Invoke();
         }
     }
 
     public void Dispose()
     {
         if (networkManager == null) return;
+
+        OnClientJoinEvt = null;
+        OnClientLeftEvt = null;
 
         networkManager.ConnectionApprovalCallback -= ApprovalCheck;
         networkManager.OnServerStarted -= ServerStarted;

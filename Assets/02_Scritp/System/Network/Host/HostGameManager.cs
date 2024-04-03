@@ -21,6 +21,9 @@ public class HostGameManager : IDisposable
     private string lobbyId;
     private const int maxConnections = 20;
 
+    //public event Action OnPlayerConnect;
+    //public event Action OnPlayerDisconnect;
+
     private NetworkServer networkServer;
     public NetworkServer NetworkServer => networkServer;
 
@@ -53,22 +56,14 @@ public class HostGameManager : IDisposable
         string userJson = JsonUtility.ToJson(userData); //데이터 가져오기
         NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(userJson);
 
-        if (NetworkManager.Singleton.StartHost()) //호스트 연결 성공시점
-        {
-            networkServer = new NetworkServer(NetworkManager.Singleton);
-        }
+        networkServer = new NetworkServer(NetworkManager.Singleton);
+
+        NetworkManager.Singleton.StartHost(); //호스트 연결 성공시점
     }
 
-    private IEnumerator HeartbeatLobby(int time)
+    public void ChangeLobbyUpdate(bool isLock)
     {
-        var timer = new WaitForSecondsRealtime(time);
-
-        while (true)
-        {
-            Lobbies.Instance.SendHeartbeatPingAsync(lobbyId);
-
-            yield return timer;
-        }
+        Lobbies.Instance.UpdateLobbyAsync(lobbyId, new UpdateLobbyOptions() { IsLocked = isLock, IsPrivate = isLock});
     }
 
     public void Dispose()
@@ -88,5 +83,17 @@ public class HostGameManager : IDisposable
 
         lobbyId = string.Empty;
         networkServer?.Dispose();
+    }
+
+    private IEnumerator HeartbeatLobby(int time)
+    {
+        var timer = new WaitForSecondsRealtime(time);
+
+        while (true)
+        {
+            Lobbies.Instance.SendHeartbeatPingAsync(lobbyId);
+
+            yield return timer;
+        }
     }
 }

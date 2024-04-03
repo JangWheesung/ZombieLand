@@ -50,7 +50,7 @@ public class ApplicationController : MonoBehaviour
 
     public async Task StartHostAsync(string username, string lobbyName)
     {
-        await HostSingle.Instance.GameManager.StartHostAsync(lobbyName, GetUserData(lobbyName));
+        await HostSingle.Instance.GameManager.StartHostAsync(lobbyName, GetUserData(username));
     }
 
     public async Task StartClientAsync(string username, string joinCode)
