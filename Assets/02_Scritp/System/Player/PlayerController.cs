@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     //¿Ã∫•∆Æ
     public event Action<Vector2> OnMovementEvt;
@@ -30,5 +31,11 @@ public class PlayerController : MonoBehaviour
     public void OnLeftClick(InputAction.CallbackContext context)
     {
         OnLeftClickEvt?.Invoke();
+    }
+
+    public override void OnDestroy()
+    {
+        OnMovementEvt = null;
+        OnLeftClickEvt = null;
     }
 }
