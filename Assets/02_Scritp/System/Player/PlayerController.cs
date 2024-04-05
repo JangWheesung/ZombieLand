@@ -7,28 +7,31 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : PlayerRoot
 {
-    //이벤트
     public event Action<Vector2> OnMovementEvt;
     public event Action<bool> OnLeftClickEvt;
 
-    //다른 클래스
-
-    //다른 요소
-
-    //참조값
     [SerializeField] private InputReader inputReader;
+
+    public PlayerRole playerRole;
 
     protected override void Awake()
     {
         base.Awake();
     }
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
 
         inputReader.MovementEvent += HandleMove;
         inputReader.LeftClickEvent += HandleLClick;
+
+        GameManager.Instance.SetLocalPlayerController(this);
+    }
+
+    public void PlayerRoleChange(PlayerRole role)
+    {
+        playerRole = role;
     }
 
     private void HandleMove(Vector2 value)
@@ -41,14 +44,13 @@ public class PlayerController : PlayerRoot
         OnLeftClickEvt?.Invoke(value);
     }
 
-    public void SetPlayerRole() //역할 정하기(좀비or인간)
-    {
-
-    }
-
-    public override void OnDestroy()
+    public override void OnNetworkDespawn()
     {
         OnMovementEvt = null;
         OnLeftClickEvt = null;
+
+        if (!IsOwner) return;
+        Debug.Log("클라 나가여");
+        GameManager.Instance.PlayerLeft(OwnerClientId);
     }
 }

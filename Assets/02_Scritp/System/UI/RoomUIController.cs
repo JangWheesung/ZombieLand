@@ -21,7 +21,10 @@ public class RoomUIController : NetworkBehaviour
             startBtnObj.SetActive(false);
         }
 
-        RefreshPlayersUIServerRpc();//클라는 호스트 화면의 클라가 실행
+        if (IsClient)
+        {
+            RefreshPlayersUIServerRpc();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -35,7 +38,6 @@ public class RoomUIController : NetworkBehaviour
 
         foreach (var item in NetworkManager.ConnectedClientsIds)
         {
-            Debug.Log(item);
             var data = HostSingle.Instance.GameManager.NetworkServer.GetUserDataByClientID(item);
 
             if (data != null)
@@ -70,5 +72,10 @@ public class RoomUIController : NetworkBehaviour
         {
             ClientSingle.Instance.GameManager.Disconnect();
         }
+    }
+
+    public override void OnDestroy()
+    {
+        HostSingle.Instance.NetworkServer.OnClientLeftEvt -= RefreshPlayersUIServerRpc;
     }
 }

@@ -66,6 +66,12 @@ public class NetworkServer : IDisposable
         return null;
     }
 
+    public PlayerRole? GetPlayerRoleByClientId(ulong clientId)
+    {
+        var data = GetUserDataByClientID(clientId).Value;
+        return data.playerRole;
+    }
+
     public void SetUserDataByClientId(ulong clientId, UserData newUserData)
     {
         if (clientIdToAuthDictionary.TryGetValue(clientId, out string authId))

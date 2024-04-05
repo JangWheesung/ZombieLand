@@ -63,7 +63,8 @@ public class ApplicationController : MonoBehaviour
         return new UserData
         {
             nickName = userName,
-            authId = AuthenticationService.Instance.PlayerId
+            authId = AuthenticationService.Instance.PlayerId,
+            playerRole = PlayerRole.None
         };
     }
 

@@ -8,10 +8,12 @@ public struct UserData : INetworkSerializable
 {
     public string nickName;
     public string authId;
+    public PlayerRole playerRole;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref nickName);
         serializer.SerializeValue(ref authId);
+        serializer.SerializeValue(ref playerRole);
     }
 }

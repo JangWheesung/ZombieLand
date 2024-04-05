@@ -9,10 +9,7 @@ public class PlayerMovement : PlayerRoot
     protected override void Awake()
     {
         base.Awake();
-    }
 
-    private void Start()
-    {
         playerController.OnMovementEvt += Movement;
     }
 
