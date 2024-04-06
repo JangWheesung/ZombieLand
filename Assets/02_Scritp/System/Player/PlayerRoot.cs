@@ -7,15 +7,18 @@ public class PlayerRoot : NetworkBehaviour
 {
     protected PlayerController playerController;
     protected PlayerMovement playerMovement;
+    protected PlayerAbility playerAbility;
 
-    [HideInInspector] public SpriteRenderer sp;
-    [HideInInspector] public Collider2D col;
-    [HideInInspector] public Rigidbody2D rb;
+    protected SpriteRenderer sp;
+    protected Collider2D col;
+    protected Rigidbody2D rb;
 
     protected virtual void Awake()
     {
         playerController = GetComponent<PlayerController>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerAbility = GetComponent<PlayerAbility>();
+
         sp = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();

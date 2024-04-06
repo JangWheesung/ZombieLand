@@ -34,6 +34,11 @@ public class PlayerController : PlayerRoot
         playerRole = role;
     }
 
+    public void PlayerColorChange(Color color)
+    {
+        sp.color = color;
+    }
+
     private void HandleMove(Vector2 value)
     {
         OnMovementEvt?.Invoke(value);
@@ -50,7 +55,6 @@ public class PlayerController : PlayerRoot
         OnLeftClickEvt = null;
 
         if (!IsOwner) return;
-        Debug.Log("클라 나가여");
         GameManager.Instance.PlayerLeft(OwnerClientId);
     }
 }

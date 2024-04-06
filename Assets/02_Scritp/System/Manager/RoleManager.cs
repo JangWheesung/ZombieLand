@@ -21,8 +21,8 @@ public class RoleManager : NetworkBehaviour
 
     public void AssignedToRole()
     {
-        int zombieIndex = Random.Range(0, NetworkManager.ConnectedClients.Count);
-        
+        //Random.Range(0, NetworkManager.ConnectedClients.Count)
+        int zombieIndex = 0;
         foreach (var item in NetworkManager.ConnectedClientsIds)
         {
             PlayerRole newPlayerRole = zombieIndex == 0 ? PlayerRole.Zombie : PlayerRole.Human;

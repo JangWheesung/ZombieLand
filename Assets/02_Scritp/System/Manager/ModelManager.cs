@@ -25,11 +25,11 @@ public class ModelManager : NetworkBehaviour
         if (role == PlayerRole.Human)
         {
             //나중에 스프라이트 바꿔 줄거임
-            player.sp.color = Color.blue;
+            player.PlayerColorChange(Color.blue);
         }
         else if (role == PlayerRole.Zombie)
         {
-            player.sp.color = Color.red;
+            player.PlayerColorChange(Color.red);
         }
     }
 }

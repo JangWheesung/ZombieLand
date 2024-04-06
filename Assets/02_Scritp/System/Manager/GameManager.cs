@@ -14,7 +14,7 @@ public class GameManager : NetworkBehaviour
     public event Action<PlayerRole, PlayerController> OnRoleChangeEvt;
     public event Action<PlayerRole, PlayerController> OnRoleChangeOwnerEvt;
 
-    [SerializeField] private PlayerController playerPrefab;
+    [SerializeField] private PlayerRoot playerPrefab;
     [SerializeField] private List<Transform> spawnTrs;
 
     private List<PlayerController> players = new List<PlayerController>();
@@ -73,11 +73,12 @@ public class GameManager : NetworkBehaviour
         var data = HostSingle.Instance.NetworkServer.GetUserDataByClientID(clientId).Value;
         data.playerRole = role;
         HostSingle.Instance.NetworkServer.SetUserDataByClientId(clientId, data);
-
+        Debug.Log(data.nickName);
+        Debug.Log(clientId);
         PlayerRoleChangeClientRpc(clientId, data);
 
         var player = GetPlayerControllerByClientID(clientId);
-
+        
         if (role == PlayerRole.Human)
         {
             zombiePlayers.Remove(player);
@@ -101,10 +102,10 @@ public class GameManager : NetworkBehaviour
         {
             int randomOrder = UnityEngine.Random.Range(0, spawnTrs.Count);
 
-            PlayerController newPlayer = Instantiate(playerPrefab, spawnTrs[randomOrder].position, Quaternion.identity);
+            PlayerRoot newPlayer = Instantiate(playerPrefab, spawnTrs[randomOrder].position, Quaternion.identity);
             newPlayer.GetComponent<NetworkObject>().SpawnWithOwnership(player);
 
-            players.Add(newPlayer);
+            players.Add(newPlayer.GetComponent<PlayerController>());
 
             spawnTrs.Remove(spawnTrs[randomOrder]);
         }
@@ -117,10 +118,14 @@ public class GameManager : NetworkBehaviour
     {
         //모든 클라에 해당 플레이어 가지고 온다
         var player = FindObjectsOfType<PlayerController>().ToList().Find(x => x.OwnerClientId == clientId);
+        player.PlayerRoleChange(data.playerRole);
+        Debug.Log(player.name);
+        Debug.Log(data.nickName);
         OnRoleChangeEvt?.Invoke(data.playerRole, player);
-
-        if (clientId != NetworkManager.LocalClientId) return;
-        OnRoleChangeOwnerEvt?.Invoke(data.playerRole, player);
+        if (clientId == NetworkManager.LocalClientId)
+        {
+            OnRoleChangeOwnerEvt?.Invoke(data.playerRole, player);
+        }
     }
 
 
