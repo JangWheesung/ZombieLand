@@ -9,7 +9,7 @@ public class PlayerAbility : PlayerRoot
     [SerializeField] private FlashBang flashBangPrefab;
 
     [SerializeField] private GameObject infectionCircle;
-    //[SerializeField] private Transform arrowRoot;
+    [SerializeField] private GameObject arrowRoot;
 
     [SerializeField] private int flashBangCount;
     [SerializeField] private float drowPower;
@@ -29,6 +29,15 @@ public class PlayerAbility : PlayerRoot
         }
     }
 
+    private void Update()
+    {
+        if (!IsOwner) return;
+        if (!arrowRoot.activeSelf) return;
+
+        Vector2 vec = CameraManager.Instance.MouseVecter2D() - (Vector2)transform.position;
+        arrowRoot.transform.up = vec.normalized;
+    }
+
     private void ResetFlashBang(PlayerRole role, PlayerController player)
     {
         if (role == PlayerRole.Human)
@@ -41,10 +50,11 @@ public class PlayerAbility : PlayerRoot
 
         if (value)
         {
-            
+            arrowRoot.SetActive(true);
         }
         else
         {
+            arrowRoot.SetActive(false);
             UseFlashBangServerRpc();
         }
     }
