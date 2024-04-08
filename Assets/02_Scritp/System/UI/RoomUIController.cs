@@ -76,6 +76,7 @@ public class RoomUIController : NetworkBehaviour
 
     public override void OnDestroy()
     {
+        if (!IsServer) return;
         HostSingle.Instance.NetworkServer.OnClientLeftEvt -= RefreshPlayersUIServerRpc;
     }
 }

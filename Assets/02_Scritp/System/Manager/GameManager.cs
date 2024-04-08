@@ -10,7 +10,9 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    //클라만 받는 이벤트
+    //이벤트는 클라에서 달아준다.
+    public event Action OnGameStartEvt;
+    public event Action OnPlayerSpawnEndEvt;
     public event Action<PlayerRole, PlayerController> OnRoleChangeEvt;
     public event Action<PlayerRole, PlayerController> OnRoleChangeOwnerEvt;
 
@@ -28,21 +30,38 @@ public class GameManager : NetworkBehaviour
         Instance = this;
     }
 
-    private async void Start()
+    private IEnumerator Start()
     {
-        await Task.Delay(5000);
+        yield return new WaitForSeconds(1f); //시작 시 연출
 
-        if (!IsServer) return;
+        OnGameStartEvt?.Invoke();
 
-        SpawnPlayer();
+        if (IsServer)
+        {
+            SpawnPlayer();
+        }
     }
 
-    //public override void OnNetworkSpawn() //Start보다 늦게 실행
-    //{
-    //    if (!IsServer) return;
+    private void SpawnPlayer()
+    {
+        foreach (var player in NetworkManager.ConnectedClientsIds)
+        {
+            int randomOrder = UnityEngine.Random.Range(0, spawnTrs.Count);
 
-    //    SpawnPlayer();
-    //}
+            PlayerRoot newPlayer = Instantiate(playerPrefab, spawnTrs[randomOrder].position, Quaternion.identity);
+            newPlayer.GetComponent<NetworkObject>().SpawnWithOwnership(player);
+
+            players.Add(newPlayer.GetComponent<PlayerController>());
+
+            spawnTrs.Remove(spawnTrs[randomOrder]);
+        }
+
+        RoleManager.Instance.AssignedToRole();
+
+        SpawnEndClientRpc();
+    }
+
+    #region ServerComponent
 
     public void SetLocalPlayerController(PlayerController playerController)
     {
@@ -68,27 +87,13 @@ public class GameManager : NetworkBehaviour
         return 0;
     }
 
+    #endregion
+
+    #region ClientComponent
+
     public void PlayerRoleChange(ulong clientId, PlayerRole role)
     {
-        var data = HostSingle.Instance.NetworkServer.GetUserDataByClientID(clientId).Value;
-        data.playerRole = role;
-        HostSingle.Instance.NetworkServer.SetUserDataByClientId(clientId, data);
-        Debug.Log(data.nickName);
-        Debug.Log(clientId);
-        PlayerRoleChangeClientRpc(clientId, data);
-
-        var player = GetPlayerControllerByClientID(clientId);
-        
-        if (role == PlayerRole.Human)
-        {
-            zombiePlayers.Remove(player);
-            humanPlayers.Add(player);
-        }
-        else if(role == PlayerRole.Zombie)
-        {
-            humanPlayers.Remove(player);
-            zombiePlayers.Add(player);
-        }
+        PlayerRoleChangeServerRpc(clientId, role);
     }
 
     public void PlayerLeft(ulong clientId)
@@ -96,40 +101,33 @@ public class GameManager : NetworkBehaviour
         PlayerLeftServerRpc(clientId);
     }
 
-    private void SpawnPlayer()
+    #endregion
+
+    #region ServerRpc
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayerRoleChangeServerRpc(ulong clientId, PlayerRole role)
     {
-        foreach (var player in NetworkManager.ConnectedClientsIds)
+        var data = HostSingle.Instance.NetworkServer.GetUserDataByClientID(clientId).Value;
+        data.playerRole = role;
+        HostSingle.Instance.NetworkServer.SetUserDataByClientId(clientId, data);
+        PlayerRoleChangeClientRpc(clientId, data);
+
+        var player = GetPlayerControllerByClientID(clientId);
+
+        if (role == PlayerRole.Human)
         {
-            int randomOrder = UnityEngine.Random.Range(0, spawnTrs.Count);
-
-            PlayerRoot newPlayer = Instantiate(playerPrefab, spawnTrs[randomOrder].position, Quaternion.identity);
-            newPlayer.GetComponent<NetworkObject>().SpawnWithOwnership(player);
-
-            players.Add(newPlayer.GetComponent<PlayerController>());
-
-            spawnTrs.Remove(spawnTrs[randomOrder]);
+            zombiePlayers.Remove(player);
+            humanPlayers.Add(player);
         }
-
-        RoleManager.Instance.AssignedToRole();
-    }
-
-    [ClientRpc]
-    private void PlayerRoleChangeClientRpc(ulong clientId, UserData data)
-    {
-        //모든 클라에 해당 플레이어 가지고 온다
-        var player = FindObjectsOfType<PlayerController>().ToList().Find(x => x.OwnerClientId == clientId);
-        player.PlayerRoleChange(data.playerRole);
-        Debug.Log(player.name);
-        Debug.Log(data.nickName);
-        OnRoleChangeEvt?.Invoke(data.playerRole, player);
-        if (clientId == NetworkManager.LocalClientId)
+        else if (role == PlayerRole.Zombie)
         {
-            OnRoleChangeOwnerEvt?.Invoke(data.playerRole, player);
+            humanPlayers.Remove(player);
+            zombiePlayers.Add(player);
         }
     }
 
-
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void PlayerLeftServerRpc(ulong clientId)
     {
         PlayerController player = GetPlayerControllerByClientID(clientId);
@@ -144,4 +142,30 @@ public class GameManager : NetworkBehaviour
         }
         players.Remove(player);
     }
+
+    #endregion
+
+    #region ClientRpc
+
+    [ClientRpc]
+    private void SpawnEndClientRpc()
+    {
+        OnPlayerSpawnEndEvt?.Invoke();
+    }
+
+    [ClientRpc]
+    private void PlayerRoleChangeClientRpc(ulong clientId, UserData data)
+    {
+        //모든 클라에 해당 플레이어 가지고 온다
+        var player = FindObjectsOfType<PlayerController>().ToList().Find(x => x.OwnerClientId == clientId);
+        player.PlayerRoleChange(data.playerRole);
+
+        OnRoleChangeEvt?.Invoke(data.playerRole, player);
+        if (clientId == NetworkManager.LocalClientId)
+        {
+            OnRoleChangeOwnerEvt?.Invoke(data.playerRole, player);
+        }
+    }
+
+    #endregion
 }

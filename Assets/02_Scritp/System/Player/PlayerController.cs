@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 public class PlayerController : PlayerRoot
 {
@@ -11,6 +12,7 @@ public class PlayerController : PlayerRoot
     public event Action<bool> OnLeftClickEvt;
 
     [SerializeField] private InputReader inputReader;
+    [SerializeField] private CinemachineVirtualCamera vcam;
 
     public PlayerRole playerRole;
 
@@ -19,14 +21,20 @@ public class PlayerController : PlayerRoot
         base.Awake();
     }
 
-    public override void OnNetworkSpawn()
+    private void Start()
     {
-        if (!IsOwner) return;
+        if (IsOwner)
+        {
+            inputReader.MovementEvent += HandleMove;
+            inputReader.LeftClickEvent += HandleLClick;
 
-        inputReader.MovementEvent += HandleMove;
-        inputReader.LeftClickEvent += HandleLClick;
-
-        GameManager.Instance.SetLocalPlayerController(this);
+            GameManager.Instance.SetLocalPlayerController(this);
+            CameraManager.Instance.CinemachSetting(vcam);
+        }
+        else
+        {
+            Destroy(vcam);
+        }
     }
 
     public void PlayerRoleChange(PlayerRole role)

@@ -5,16 +5,15 @@ using Unity.Netcode;
 
 public class PlayerAbility : PlayerRoot
 {
+    [SerializeField] private FlashBang flashBangPrefab;
     [SerializeField] private int flashBangCount;
+    [SerializeField] private float drowPower;
     [SerializeField] private float infectionRadius;
+
     private int currentFlashBang;
 
-    protected override void Awake()
+    public override void OnNetworkSpawn()
     {
-        base.Awake();
-
-        currentFlashBang = flashBangCount;
-
         playerController.OnLeftClickEvt += UseFlashBang;
         playerController.OnLeftClickEvt += UseInfection;
         if (IsOwner)
@@ -26,19 +25,15 @@ public class PlayerAbility : PlayerRoot
     private void ResetFlashBang(PlayerRole role, PlayerController player)
     {
         if (role == PlayerRole.Human)
-            currentFlashBang = flashBangCount;
+            ResetFlashBangServerRpc();
     }
 
     private void UseFlashBang(bool value)
     {
+        if (value) return;
         if (playerController.playerRole != PlayerRole.Human) return;
 
-        if (currentFlashBang > 0)
-        {
-            //ÇöÀç ¸¶¿ì½º Ä¿¼­·Î ¼¶±¤Åº ÅõÃ´
-
-            currentFlashBang--;
-        }
+        UseFlashBangServerRpc();
     }
 
     private void UseInfection(bool value)
@@ -51,16 +46,35 @@ public class PlayerAbility : PlayerRoot
             if (item.TryGetComponent<PlayerController>(out PlayerController player) 
                 && player.playerRole == PlayerRole.Human)
             {
-                InfectionServerRpc(player.OwnerClientId);
+                GameManager.Instance.PlayerRoleChange(player.OwnerClientId, PlayerRole.Zombie);
             }
         }
     }
 
+    #region ServerRpc
+
     [ServerRpc]
-    private void InfectionServerRpc(ulong clientId)
+    private void UseFlashBangServerRpc()
     {
-        GameManager.Instance.PlayerRoleChange(clientId, PlayerRole.Zombie);
+        if (currentFlashBang > 0)
+        {
+            Vector2 vec = CameraManager.Instance.MouseVecter2D() - (Vector2)transform.position;
+
+            FlashBang grenade = Instantiate(flashBangPrefab, transform.position, Quaternion.identity);
+            grenade.GetComponent<NetworkObject>().SpawnWithOwnership(OwnerClientId);
+            grenade.Drow(vec.normalized, drowPower);
+
+            currentFlashBang--;
+        }
     }
+
+    [ServerRpc]
+    private void ResetFlashBangServerRpc()
+    {
+        currentFlashBang = flashBangCount;
+    }
+
+    #endregion
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()

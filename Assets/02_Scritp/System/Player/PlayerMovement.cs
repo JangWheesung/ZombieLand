@@ -6,10 +6,8 @@ public class PlayerMovement : PlayerRoot
 {
     [SerializeField] private float speed;
 
-    protected override void Awake()
+    public override void OnNetworkSpawn()
     {
-        base.Awake();
-
         playerController.OnMovementEvt += Movement;
     }
 
