@@ -226,6 +226,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2bffa1c7ea93e94683e5eb9fdb95be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delay: 1
+  delay: 1.5
   flashRadius: 6
   shakeRadius: 10

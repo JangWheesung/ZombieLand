@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using DG.Tweening;
 
 public class FlashBang : NetworkBehaviour
 {
@@ -10,6 +11,8 @@ public class FlashBang : NetworkBehaviour
     [SerializeField] private float delay;
     [SerializeField] private float flashRadius;
     [SerializeField] private float shakeRadius;
+
+    private float drawPower;
 
     private void Awake()
     {
@@ -23,8 +26,21 @@ public class FlashBang : NetworkBehaviour
         StartCoroutine(Bomb());
     }
 
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        if (rb.velocity != Vector2.zero)
+        {
+            float interpolation = (drawPower * delay) / 6f;
+            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, interpolation * Time.deltaTime);
+        }
+    }
+
     public void Drow(Vector2 vec, float power)
     {
+        //transform.DOMove(transform.position + (Vector3)vec * power, delay).SetEase(Ease.OutQuart);
+        drawPower = power;
         rb.AddForce(vec * power, ForceMode2D.Impulse);
     }
 
@@ -37,7 +53,7 @@ public class FlashBang : NetworkBehaviour
         Collider2D[] flashPlayers = Physics2D.OverlapCircleAll(transform.position, flashRadius, LayerMask.GetMask("Player"));
         foreach (var item in flashPlayers)
         {
-            if (item.TryGetComponent<PlayerController>(out PlayerController player))
+            if (item.TryGetComponent(out PlayerController player))
             {
                 float destance = Vector2.Distance(item.transform.position, transform.position);
                 Debug.Log(destance);

@@ -566,7 +566,7 @@ MonoBehaviour:
   infectionCircle: {fileID: 7480216790257836660}
   arrowRoot: {fileID: 8660248363128602922}
   flashBangCount: 999
-  drowPower: 8
+  drowPower: 25
   infectionRadius: 2
 --- !u!114 &6302402949301365589
 MonoBehaviour:
@@ -645,7 +645,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8178420246183633324
 Transform:
   m_ObjectHideFlags: 0
