@@ -50,7 +50,7 @@ public class FlashBang : NetworkBehaviour
         {
             if (item.TryGetComponent<PlayerController>(out PlayerController player))
             {
-                CameraManager.Instance.ShakeCanera(player.OwnerClientId, 4, 1.3f, 0.2f);
+                CameraManager.Instance.ShakeCanera(player.OwnerClientId, 4, 1.5f, 0.3f);
             }
         }
 

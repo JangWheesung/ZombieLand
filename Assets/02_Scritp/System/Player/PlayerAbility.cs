@@ -2,10 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using DG.Tweening;
 
 public class PlayerAbility : PlayerRoot
 {
     [SerializeField] private FlashBang flashBangPrefab;
+
+    [SerializeField] private GameObject infectionCircle;
+    //[SerializeField] private Transform arrowRoot;
+
     [SerializeField] private int flashBangCount;
     [SerializeField] private float drowPower;
     [SerializeField] private float infectionRadius;
@@ -14,6 +19,8 @@ public class PlayerAbility : PlayerRoot
 
     public override void OnNetworkSpawn()
     {
+        infectionCircle.transform.localScale = new Vector2(infectionRadius * 2, infectionRadius * 2);
+
         playerController.OnLeftClickEvt += UseFlashBang;
         playerController.OnLeftClickEvt += UseInfection;
         if (IsOwner)
@@ -30,24 +37,39 @@ public class PlayerAbility : PlayerRoot
 
     private void UseFlashBang(bool value)
     {
-        if (value) return;
         if (playerController.playerRole != PlayerRole.Human) return;
 
-        UseFlashBangServerRpc();
+        if (value)
+        {
+            
+        }
+        else
+        {
+            UseFlashBangServerRpc();
+        }
     }
 
     private void UseInfection(bool value)
     {
         if (playerController.playerRole != PlayerRole.Zombie) return;
 
-        Collider2D[] players = Physics2D.OverlapCircleAll(transform.position, infectionRadius, LayerMask.GetMask("Player"));
-        foreach (var item in players)
+        if (value)
         {
-            if (item.TryGetComponent<PlayerController>(out PlayerController player) 
-                && player.playerRole == PlayerRole.Human)
+            infectionCircle.SetActive(true);
+        }
+        else
+        {
+            infectionCircle.SetActive(false);
+            Collider2D[] players = Physics2D.OverlapCircleAll(transform.position, infectionRadius, LayerMask.GetMask("Player"));
+            foreach (var item in players)
             {
-                GameManager.Instance.PlayerRoleChange(player.OwnerClientId, PlayerRole.Zombie);
+                if (item.TryGetComponent<PlayerController>(out PlayerController player)
+                    && player.playerRole == PlayerRole.Human)
+                {
+                    GameManager.Instance.PlayerRoleChange(player.OwnerClientId, PlayerRole.Zombie);
+                }
             }
+            CameraManager.Instance.ShakeCanera(OwnerClientId, 2, 0.8f, 0.15f);
         }
     }
 

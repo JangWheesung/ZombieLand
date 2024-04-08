@@ -60,6 +60,7 @@ public class CameraManager : NetworkBehaviour
 
     private void ShakeCameraCor(PlayerRole role, PlayerController player)
     {
+        StopAllCoroutines();
         if (role == PlayerRole.Zombie) //좀비로 변했으니까
         {
             StartCoroutine(ShakeEffect(5, 2f, 0.4f));
@@ -93,6 +94,7 @@ public class CameraManager : NetworkBehaviour
     {
         if (clientId != NetworkManager.LocalClientId) return;
 
+        DOTween.Kill(transform);
         flashImage.gameObject.SetActive(true);
         DOTween.Sequence()
             .Append(flashImage.DOFade(1, 0.1f))
@@ -106,6 +108,7 @@ public class CameraManager : NetworkBehaviour
     {
         if (clientId != NetworkManager.LocalClientId) return;
 
+        StopAllCoroutines();
         StartCoroutine(ShakeEffect(amplitude, freauency, time));
     }
 
