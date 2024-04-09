@@ -53,7 +53,7 @@ public class FlashBang : NetworkBehaviour
         Collider2D[] flashPlayers = Physics2D.OverlapCircleAll(transform.position, flashRadius, LayerMask.GetMask("Player"));
         foreach (var item in flashPlayers)
         {
-            if (item.TryGetComponent(out PlayerController player))
+            if (item.TryGetComponent(out PlayerController player) && player.OwnerClientId != OwnerClientId)
             {
                 float destance = Vector2.Distance(item.transform.position, transform.position);
                 Debug.Log(destance);
@@ -66,7 +66,7 @@ public class FlashBang : NetworkBehaviour
         {
             if (item.TryGetComponent<PlayerController>(out PlayerController player))
             {
-                CameraManager.Instance.ShakeCanera(player.OwnerClientId, 4, 1.5f, 0.3f);
+                CameraManager.Instance.ShakeCamera(player.OwnerClientId, 4, 1.5f, 0.3f);
             }
         }
 

@@ -320,6 +320,7 @@ GameObject:
   - component: {fileID: 5102851895064679784}
   - component: {fileID: 913012518013895128}
   - component: {fileID: 4484626613448080193}
+  - component: {fileID: 5570605207785902936}
   - component: {fileID: 6302402949301365589}
   m_Layer: 6
   m_Name: Player
@@ -566,8 +567,22 @@ MonoBehaviour:
   infectionCircle: {fileID: 7480216790257836660}
   arrowRoot: {fileID: 8660248363128602922}
   flashBangCount: 999
-  drowPower: 25
+  drowPower: 30
   infectionRadius: 2
+--- !u!114 &5570605207785902936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8539267146756304949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51fbddff32594d64488e24351e0e4768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  humanRader: 15
+  zombieRader: 12
 --- !u!114 &6302402949301365589
 MonoBehaviour:
   m_ObjectHideFlags: 0

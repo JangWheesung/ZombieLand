@@ -79,7 +79,7 @@ public class PlayerAbility : PlayerRoot
                     GameManager.Instance.PlayerRoleChange(player.OwnerClientId, PlayerRole.Zombie);
                 }
             }
-            CameraManager.Instance.ShakeCanera(OwnerClientId, 2, 0.8f, 0.15f);
+            CameraManager.Instance.ShakeCamera(OwnerClientId, 2, 0.8f, 0.15f);
         }
     }
 

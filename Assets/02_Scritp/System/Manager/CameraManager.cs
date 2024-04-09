@@ -53,7 +53,7 @@ public class CameraManager : NetworkBehaviour
         FlashEffectServerRpc(clientId, destance);
     }
 
-    public void ShakeCanera(ulong clientId, float amplitude, float freauency, float time)
+    public void ShakeCamera(ulong clientId, float amplitude, float freauency, float time)
     {
         ShakeCaneraServerRpc(clientId, amplitude, freauency, time);
     }

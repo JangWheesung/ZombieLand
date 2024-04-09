@@ -8,6 +8,7 @@ public class PlayerRoot : NetworkBehaviour
     protected PlayerController playerController;
     protected PlayerMovement playerMovement;
     protected PlayerAbility playerAbility;
+    protected PlayerDetect playerDetect;
 
     protected SpriteRenderer sp;
     protected Collider2D col;
@@ -18,6 +19,7 @@ public class PlayerRoot : NetworkBehaviour
         playerController = GetComponent<PlayerController>();
         playerMovement = GetComponent<PlayerMovement>();
         playerAbility = GetComponent<PlayerAbility>();
+        playerDetect = GetComponent<PlayerDetect>();
 
         sp = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();

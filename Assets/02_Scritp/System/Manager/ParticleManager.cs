@@ -40,14 +40,14 @@ public class ParticleManager : NetworkBehaviour
 
     #region ServerRpc
 
-    [ServerRpc()]
+    [ServerRpc(RequireOwnership = false)]
     private void SpawnBombParticleSpawnServerRpc(Vector2 pos)
     {
         ParticleLife bombParticle = Instantiate(bombParticlePrefab, pos, Quaternion.identity);
         bombParticle.GetComponent<NetworkObject>().Spawn();
     }
 
-    [ServerRpc()]
+    [ServerRpc(RequireOwnership = false)]
     private void SpawnZombieParticleSpawnServerRpc(Vector2 pos)
     {
         ParticleLife bombParticle = Instantiate(zombieParticlePrefab, pos, Quaternion.identity);
