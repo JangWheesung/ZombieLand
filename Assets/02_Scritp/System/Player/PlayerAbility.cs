@@ -54,6 +54,8 @@ public class PlayerAbility : PlayerRoot
         }
         else
         {
+            playerAnimation.OnAttackAnim();
+
             arrowRoot.SetActive(false);
             UseFlashBangServerRpc();
         }
@@ -69,6 +71,8 @@ public class PlayerAbility : PlayerRoot
         }
         else
         {
+            playerAnimation.OnAttackAnim();
+
             infectionCircle.SetActive(false);
             Collider2D[] players = Physics2D.OverlapCircleAll(transform.position, infectionRadius, LayerMask.GetMask("Player"));
             foreach (var item in players)

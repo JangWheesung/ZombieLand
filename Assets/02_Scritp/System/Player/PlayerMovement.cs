@@ -13,6 +13,12 @@ public class PlayerMovement : PlayerRoot
 
     private void Movement(Vector2 vec)
     {
+        playerAnimation.OnMoveAnim(vec != Vector2.zero);
+        if (vec.x != 0)
+        {
+            playerAnimation.OnFilp(vec.x < 0);
+        }
+
         rb.velocity = vec * speed;
     }
 }
