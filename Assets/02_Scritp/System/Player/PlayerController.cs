@@ -21,7 +21,7 @@ public class PlayerController : PlayerRoot
         base.Awake();
     }
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
         if (IsOwner)
         {

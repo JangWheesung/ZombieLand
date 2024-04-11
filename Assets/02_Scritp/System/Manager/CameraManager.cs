@@ -28,13 +28,17 @@ public class CameraManager : NetworkBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnPlayerSpawnEndEvt += () =>
+        if (IsClient)
         {
-            if (IsClient)
-            {
-                GameManager.Instance.OnRoleChangeOwnerEvt += ShakeCameraCor;
-            }
-        };
+            GameManager.Instance.OnRoleChangeOwnerEvt += ShakeCameraCor;
+        }
+        //GameManager.Instance.OnPlayerSpawnEndEvt += () =>
+        //{
+        //    if (IsClient)
+        //    {
+        //        GameManager.Instance.OnRoleChangeOwnerEvt += ShakeCameraCor;
+        //    }
+        //};
     }
 
     public void CinemachSetting(CinemachineVirtualCamera vcam)

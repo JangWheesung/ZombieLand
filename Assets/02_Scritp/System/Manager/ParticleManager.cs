@@ -17,10 +17,11 @@ public class ParticleManager : NetworkBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnPlayerSpawnEndEvt += () =>
-        {
-            GameManager.Instance.OnRoleChangeEvt += SpawnZombieParticleSpawn;
-        };
+        GameManager.Instance.OnRoleChangeEvt += SpawnZombieParticleSpawn;
+        //GameManager.Instance.OnPlayerSpawnEndEvt += () =>
+        //{
+        //    GameManager.Instance.OnRoleChangeEvt += SpawnZombieParticleSpawn;
+        //};
     }
 
     public void SpawnBombParticleSpawn(Vector2 pos)
@@ -34,6 +35,8 @@ public class ParticleManager : NetworkBehaviour
 
     private void SpawnZombieParticleSpawn(PlayerRole role, PlayerController player)
     {
+        if (role != PlayerRole.Zombie) return;
+
         Vector2 pos = player.transform.position;
         SpawnZombieParticleSpawnServerRpc(pos);
     }

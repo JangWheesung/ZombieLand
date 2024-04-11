@@ -5,6 +5,7 @@ using Unity.Netcode;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using DG.Tweening;
 
 public class GameManager : NetworkBehaviour
 {
@@ -16,8 +17,11 @@ public class GameManager : NetworkBehaviour
     public event Action<PlayerRole, PlayerController> OnRoleChangeEvt;
     public event Action<PlayerRole, PlayerController> OnRoleChangeOwnerEvt;
 
+    [SerializeField] private GeneratorManager generatorManagerPrefab;
     [SerializeField] private PlayerRoot playerPrefab;
     [SerializeField] private List<Transform> spawnTrs;
+
+    [SerializeField] private float settingTime;
 
     private List<PlayerController> players = new List<PlayerController>();
     private List<PlayerController> humanPlayers = new List<PlayerController>();
@@ -32,13 +36,29 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(1f); //시작 시 연출
+        if (IsServer)
+        {
+            MapSetting();
+        }
+
+        Camera.main.DOOrthoSize(30f, settingTime / 2f).SetEase(Ease.OutExpo);
+        yield return new WaitForSeconds(settingTime); //시작 시 연출
 
         OnGameStartEvt?.Invoke();
 
         if (IsServer)
         {
             SpawnPlayer();
+        }
+    }
+
+    private void MapSetting()
+    {
+        MapManager.Instance.CreateMap();
+
+        for (int i = 0; i < spawnTrs.Count; i++)
+        {
+            spawnTrs[i].position = MapManager.Instance.GetRandomPointInFloorMap();
         }
     }
 

@@ -21,12 +21,18 @@ public class ParticleLife : NetworkBehaviour
 
     public void IsDeathParticle()
     {
+        DeathParticleServerRpc();
+    }
+
+    [ServerRpc]
+    private void DeathParticleServerRpc()
+    {
         Destroy(gameObject);
     }
 
     private IEnumerator LifeCount()
     {
         yield return new WaitForSecondsRealtime(lifeTime);
-        Destroy(gameObject);
+        DeathParticleServerRpc();
     }
 }
