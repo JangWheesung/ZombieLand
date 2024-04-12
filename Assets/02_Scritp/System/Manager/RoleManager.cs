@@ -5,6 +5,8 @@ using Unity.Netcode;
 using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
+using UnityEngine.SceneManagement;
 
 public enum PlayerRole
 {
@@ -17,6 +19,9 @@ public class RoleManager : NetworkBehaviour
 {
     public static RoleManager Instance { get; private set; }
 
+    public event Action OnGameEndEvt;
+
+    [SerializeField] private Image fadeImage;
     [SerializeField] private Image timerCircle;
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text roleText;
@@ -58,7 +63,8 @@ public class RoleManager : NetworkBehaviour
             int sec = Mathf.CeilToInt(((currentTime / 60f) - min) * 60);
             timerText.text = $"{min}:{sec}";
 
-            currentTime -= Time.fixedDeltaTime;
+            if(currentTime > 0)
+                currentTime -= Time.fixedDeltaTime;
         }
 
         if (!IsServer) return;
@@ -66,6 +72,8 @@ public class RoleManager : NetworkBehaviour
         if (currentTime <= 0 || 
             GameManager.Instance.GetPlayersCount() == GameManager.Instance.GetPlayersCount(PlayerRole.Zombie))
         {
+            NextGameSceneClientRpc();
+            OnGameEndEvt?.Invoke();
             //°ÔÀÓ ³¡
         }
     }
@@ -110,4 +118,27 @@ public class RoleManager : NetworkBehaviour
             .Append(roleText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.InCubic))
             .Insert(1.5f, roleText.transform.DOScale(Vector3.zero, 0.5f));
     }
+
+    #region ServerRpc
+
+
+
+    #endregion
+
+    #region ClientRpc
+
+    [ClientRpc]
+    private void NextGameSceneClientRpc()
+    {
+        fadeImage.gameObject.SetActive(true);
+        fadeImage.DOFade(1, 2f).OnComplete(() => 
+        {
+            if (IsServer)
+            {
+                NetworkManager.Singleton.SceneManager.LoadScene(SceneList.WinScene, LoadSceneMode.Single);
+            }
+        });
+    }
+
+    #endregion
 }
