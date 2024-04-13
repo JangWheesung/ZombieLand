@@ -21,6 +21,7 @@ public class RoomUIController : NetworkBehaviour
         if (IsHost) //호스트만 실행되게
         {
             HostSingle.Instance.NetworkServer.OnClientLeftEvt += RefreshPlayersUIServerRpc;
+            ComeLobbyServerRpc(NetworkManager.LocalClientId);
         }
         else
         {
@@ -29,7 +30,7 @@ public class RoomUIController : NetworkBehaviour
 
         if (IsClient)
         {
-            ComeLobbyServerRpc(NetworkManager.LocalClientId);
+            //ComeLobbyServerRpc(NetworkManager.LocalClientId);
             RefreshPlayersUIServerRpc();
         }
     }
