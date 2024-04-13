@@ -5,9 +5,12 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
+using DG.Tweening;
 
 public class IntroUIController : MonoBehaviour
 {
+    [SerializeField] private Transform createPanel;
+    [SerializeField] private Transform lobbyPanel;
     [SerializeField] private LobbyUI lobbyUIPrefab;
     [SerializeField] private RectTransform lobbyPanelRoot;
 
@@ -25,6 +28,35 @@ public class IntroUIController : MonoBehaviour
     public async void JoinRoom(TMP_InputField joinInputField)
     {
         await ApplicationController.Instance.StartClientAsync("Jang_Client", joinInputField.text);
+    }
+
+    public void HostBtn()
+    {
+        if (createPanel.localPosition.y == 0)
+        {
+            createPanel.DOLocalMoveY(-1000, 0.5f);
+        }
+        else
+        {
+            createPanel.DOLocalMoveY(0, 0.5f);
+        }
+    }
+
+    public void JoinBtn()
+    {
+        if (lobbyPanel.localPosition.x == 0)
+        {
+            lobbyPanel.DOLocalMoveX(1500, 0.5f);
+        }
+        else
+        {
+            lobbyPanel.DOLocalMoveX(0, 0.5f);
+        }
+    }
+
+    public void ExitBtn()
+    {
+        Application.Quit();
     }
 
     private void CreateLobbyUI(Lobby lobby)

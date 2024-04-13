@@ -59,6 +59,8 @@ public class PlayerController : PlayerRoot
 
     public override void OnNetworkDespawn()
     {
+        inputReader.MovementEvent -= HandleMove;
+        inputReader.LeftClickEvent -= HandleLClick;
         OnMovementEvt = null;
         OnLeftClickEvt = null;
 

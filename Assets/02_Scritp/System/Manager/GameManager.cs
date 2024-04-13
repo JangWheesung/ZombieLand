@@ -188,4 +188,12 @@ public class GameManager : NetworkBehaviour
     }
 
     #endregion
+
+    public override void OnDestroy()
+    {
+        foreach (PlayerController player in players)
+        {
+            player.GetComponent<NetworkObject>().Despawn();
+        }
+    }
 }

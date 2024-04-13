@@ -131,7 +131,7 @@ public class RoleManager : NetworkBehaviour
     private void NextGameSceneClientRpc()
     {
         fadeImage.gameObject.SetActive(true);
-        fadeImage.DOFade(1, 2f).OnComplete(() => 
+        fadeImage.DOFade(2, 1.5f).OnComplete(() => 
         {
             if (IsServer)
             {
